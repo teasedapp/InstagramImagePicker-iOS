@@ -25,6 +25,7 @@ static NSString *const kImagePickerCellReuseIdentifier = @"co.oceanlabs.ps.kImag
 
 @interface OLInstagramImagePickerViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate>
 @property (nonatomic, strong) NSArray/*<OLInstagramImage>*/ *selected;
+@property (nonatomic, assign) BOOL allowMultiSelect;
 @property (nonatomic, strong) NSMutableArray/*<OLInstagramImage>*/ *selectedImagesInFuturePages; // selected images that don't yet occur in collectionView.indexPathsForSelectedItems as the user needs to load more instagram pages first
 @property (nonatomic, assign) BOOL startImageLoadingOnViewDidLoad;
 @property (nonatomic, weak) IBOutlet UICollectionView *collectionView;
@@ -59,9 +60,20 @@ static NSString *const kImagePickerCellReuseIdentifier = @"co.oceanlabs.ps.kImag
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.title = NSLocalizedString(@"Add Photos", @"");
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", @"") style:UIBarButtonItemStylePlain target:self action:@selector(onButtonDoneClicked)];
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Logout", @"") style:UIBarButtonItemStylePlain target:self action:@selector(onButtonLogoutClicked)];
+    if (self.allowMultiSelect) {
+        self.title = NSLocalizedString(@"Add Photos", @"");
+    }
+    else {
+        self.title = NSLocalizedString(@"Don't Show Your Face!", @"");
+    }
+
+    if (self.allowMultiSelect) {
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", @"") style:UIBarButtonItemStylePlain target:self action:@selector(onButtonDoneClicked)];
+    }
+    else {
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Cancel", @"") style:UIBarButtonItemStylePlain target:self action:@selector(onButtonCancelClicked)];
+    }
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Logout", @"") style:UIBarButtonItemStylePlain target:self action:@selector(onButtonLogoutClicked)];
     
     CGFloat itemSize = MIN([UIScreen mainScreen].bounds.size.height, [UIScreen mainScreen].bounds.size.width)/4.0 - 1.0;
     
@@ -72,7 +84,7 @@ static NSString *const kImagePickerCellReuseIdentifier = @"co.oceanlabs.ps.kImag
     layout.minimumLineSpacing           = 1.0;
     layout.footerReferenceSize          = CGSizeMake(0, 0);
     self.collectionView.collectionViewLayout = layout;
-    self.collectionView.allowsMultipleSelection = YES;
+    self.collectionView.allowsMultipleSelection = self.allowMultiSelect;
     
     [self.collectionView registerClass:[InstagramSupplementaryView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:kSupplementaryViewFooterReuseIdentifier];
     [self.collectionView registerClass:[OLInstagramImagePickerCell class] forCellWithReuseIdentifier:kImagePickerCellReuseIdentifier];
@@ -84,12 +96,12 @@ static NSString *const kImagePickerCellReuseIdentifier = @"co.oceanlabs.ps.kImag
     // Hide the back button and set custom title view that looks the same as the default. The reason for this is because by default
     // when this view is pushed onto the navigation stack these items would animate, we actually don't want that behaviour as our
     // push view controller transition is a flip of the screen.
-    [self.navigationItem setHidesBackButton:YES];
-    UILabel *title = [[UILabel alloc] init];
-    title.text = self.title;
-    title.font = [UIFont boldSystemFontOfSize:title.font.pointSize];
-    [title sizeToFit];
-    self.navigationItem.titleView = title;
+//    [self.navigationItem setHidesBackButton:YES];
+//    UILabel *title = [[UILabel alloc] init];
+//    title.text = self.title;
+//    title.font = [UIFont boldSystemFontOfSize:title.font.pointSize];
+//    [title sizeToFit];
+//    self.navigationItem.titleView = title;
 }
 
 - (void)startImageLoading {
@@ -187,6 +199,12 @@ static NSString *const kImagePickerCellReuseIdentifier = @"co.oceanlabs.ps.kImag
     [picker.delegate instagramImagePicker:picker didFinishPickingImages:self.selected];
 }
 
+- (void)onButtonCancelClicked {
+    [self.inProgressMediaRequest cancel];
+    OLInstagramImagePickerController *picker = (OLInstagramImagePickerController *) self.navigationController;
+    [picker.delegate instagramImagePicker:picker didFinishPickingImages:nil];
+}
+
 - (NSArray *)selected {
     NSMutableArray *selectedItems = [[NSMutableArray alloc] init];
     NSArray *selectedPaths = self.collectionView.indexPathsForSelectedItems;
@@ -278,7 +296,11 @@ static NSString *const kImagePickerCellReuseIdentifier = @"co.oceanlabs.ps.kImag
 }
 
 -(void) collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
-    [self updateTitleWithSelectedIndexPaths:collectionView.indexPathsForSelectedItems];
+    if (self.allowMultiSelect) {
+        [self updateTitleWithSelectedIndexPaths:collectionView.indexPathsForSelectedItems];
+    } else {
+        [self onButtonDoneClicked];
+    }
 }
 
 @end

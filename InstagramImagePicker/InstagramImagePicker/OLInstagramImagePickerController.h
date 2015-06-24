@@ -66,6 +66,8 @@
  */
 @property (nonatomic, copy) NSArray/*<OLInstagramImage>*/ *selected;
 
+@property (nonatomic, assign) BOOL allowMultiSelect;
+
 /**
  The image picker’s delegate object.
  */

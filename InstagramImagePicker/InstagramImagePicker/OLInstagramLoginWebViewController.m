@@ -31,17 +31,17 @@
     self.webView.delegate = self;
     
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Cancel", @"") style:UIBarButtonItemStylePlain target:self action:@selector(onButtonCancelClicked)];
-    self.navigationItem.rightBarButtonItem = cancelButton;
+    self.navigationItem.leftBarButtonItem = cancelButton;
     
     // Hide th back button and set custom title view that looks the same as the default. The reason for this is because by default
     // when this view is pushed onto the navigation stack these items would animate, we actually don't want that behaviour as our
     // push view controller transition is a flip of the screen.
-    [self.navigationItem setHidesBackButton:YES];
-    UILabel *title = [[UILabel alloc] init];
-    title.text = self.title;
-    title.font = [UIFont boldSystemFontOfSize:title.font.pointSize];
-    [title sizeToFit];
-    self.navigationItem.titleView = title;
+//    [self.navigationItem setHidesBackButton:YES];
+//    UILabel *title = [[UILabel alloc] init];
+//    title.text = self.title;
+//    title.font = [UIFont boldSystemFontOfSize:title.font.pointSize];
+//    [title sizeToFit];
+//    self.navigationItem.titleView = title;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
