@@ -23,7 +23,7 @@ static NSString *const kImagePickerCellReuseIdentifier = @"co.oceanlabs.ps.kImag
 @interface InstagramSupplementaryView : UICollectionReusableView
 @end
 
-@interface OLInstagramImagePickerViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate>
+@interface OLInstagramImagePickerViewController () <UICollectionViewDataSource, UICollectionViewDelegate>
 @property (nonatomic, strong) NSArray/*<OLInstagramImage>*/ *selected;
 @property (nonatomic, assign) BOOL allowMultiSelect;
 @property (nonatomic, strong) NSMutableArray/*<OLInstagramImage>*/ *selectedImagesInFuturePages; // selected images that don't yet occur in collectionView.indexPathsForSelectedItems as the user needs to load more instagram pages first
@@ -39,7 +39,6 @@ static NSString *const kImagePickerCellReuseIdentifier = @"co.oceanlabs.ps.kImag
 
 @interface OLInstagramImagePickerController () <OLInstagramLoginWebViewControllerDelegate>
 @property (nonatomic, strong) OLInstagramLoginWebViewController *loginVC;
-@property (nonatomic, strong) OLInstagramImagePickerViewController *imagePickerVC;
 
 - (void)flipToInstagramLoginController;
 - (void)flipToImagePickerController;
@@ -59,13 +58,6 @@ static NSString *const kImagePickerCellReuseIdentifier = @"co.oceanlabs.ps.kImag
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    if (self.allowMultiSelect) {
-        self.title = NSLocalizedString(@"Add Photos", @"");
-    }
-    else {
-        self.title = NSLocalizedString(@"Don't Show Your Face!", @"");
-    }
 
     if (self.allowMultiSelect) {
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", @"") style:UIBarButtonItemStylePlain target:self action:@selector(onButtonDoneClicked)];

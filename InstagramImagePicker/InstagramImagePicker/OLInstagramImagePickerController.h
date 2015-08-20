@@ -10,6 +10,8 @@
 
 @class OLInstagramImagePickerController;
 
+@class OLInstagramImagePickerViewController;
+
 /**
  The OLInstagramImagePickerControllerDelegate protocol defines methods that your delegate object must implement to interact with the image picker interface. 
  The methods of this protocol notify your delegate when the user completes picking, cancels the picker operation or if an error arises (i.e. due to network
@@ -41,6 +43,10 @@
 - (void)instagramImagePickerDidCancelPickingImages:(OLInstagramImagePickerController *)imagePicker;
 @end
 
+@interface OLInstagramImagePickerViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate>
+
+@end
+
 /** 
  The OLInstagramImagePickerController class provides a simple UI for a user to pick photos from their Instagram account. It
  provides an image picker interface that matches the iOS SDK's UIIMagePickerController. It takes care of all
@@ -66,7 +72,7 @@
  */
 @property (nonatomic, copy) NSArray/*<OLInstagramImage>*/ *selected;
 
-@property (nonatomic, assign) BOOL allowMultiSelect;
+@property (nonatomic, strong) OLInstagramImagePickerViewController *imagePickerVC;
 
 /**
  The image picker’s delegate object.
