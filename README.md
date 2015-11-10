@@ -1,8 +1,12 @@
 # iOS Instagram Image Picker
 
-A Instagram image picker providing a simple UI for a user to pick photos from a users Instagram account. It provides an image picker interface that matches the iOS SDK's UIImagePickerController. 
+A Instagram image picker providing a simple UI for a user to pick photos from a users Instagram account. It provides an image picker interface that matches the iOS SDK's UIImagePickerController.
 
-It takes care of all authentication with Instagram as and when necessary. It will automatically renew auth tokens or prompt the user to re-authorize the app if needed. 
+It takes care of all authentication with Instagram as and when necessary. It will automatically renew auth tokens or prompt the user to re-authorize the app if needed.
+
+## Video Preview
+
+[![Preview](https://github.com/OceanLabs/InstagramImagePicker-iOS/raw/master/preview.png)](https://vimeo.com/135683505)
 
 ## Requirements
 
@@ -20,7 +24,7 @@ pod "InstagramImagePicker"
 
 ## Usage
 
-You need to have set up your application correctly to work with Instagram by registering a new Instagram application here: https://instagram.com/developer/ . For the redirect uri use something link `your-app-scheme://instagram-callback`.
+You need to have set up your application correctly to work with Instagram by registering a new Instagram application here: https://instagram.com/developer/ . For the redirect uri use something like `your-app-scheme://instagram-callback`.
 
 To launch the Instagram Image Picker:
 
@@ -51,6 +55,71 @@ Implement the `OLInstagramImagePickerControllerDelegate` protocol:
 }
 
 ```
+
+## App Transport Security
+Xcode 7 and iOS 9 includes some new security features. In order to connect to Instagram you will need to add some more exceptions to your project's info plist file (in addition to the ones that your project might require).
+We need to add forward secrecy exceptions for Instagram's CDNs. The following is what you need to copy your app's info plist, which includes anything that is needed by Kite as well:
+```
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>akamaihd.net</key>
+			<dict>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>facebook.net</key>
+			<dict>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+      <key>facebook.com</key>
+			<dict>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>instagram.com</key>
+			<dict>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>fbcdn.net</key>
+			<dict>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>cdninstagram.com</key>
+			<dict>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+```
+
+**Set maximum number of selections**
+
+Limit the number of assets to be picked.
+```` objective-c
+- (BOOL)instagramImagePicker:(OLInstagramImagePickerController *)imagePicker shouldSelectImage:(OLInstagramImage *)image
+{
+    // Allow 10 assets to be picked
+    return (imagePicker.selected.count < 10);
+}
+````
 
 ### Sample Apps
 The project is bundled with a Sample App to highlight the libraries usage. Alternatively you can see the library in action in the following iOS apps:

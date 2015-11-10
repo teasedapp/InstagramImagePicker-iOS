@@ -13,7 +13,7 @@
 #import "OLInstagramLoginWebViewController.h"
 #import "OLInstagramImagePickerConstants.h"
 
-#import <NXOAuth2.h>
+#import <NXOAuth2Client/NXOAuth2.h>
 
 static const BOOL kDebugForceLogin = NO; // if YES then the user will always be presented with the login view controller first regardless of their authentication state
 
@@ -246,7 +246,9 @@ static NSString *const kImagePickerCellReuseIdentifier = @"co.oceanlabs.ps.kImag
     // Reset title to group name
     if (indexPaths.count == 0)
     {
-        self.parentViewController.title = NSLocalizedString(@"Add Photos", @"");
+        self.title = NSLocalizedString(@"Add Photos", @"");
+        ((UILabel *)self.navigationItem.titleView).text= self.title;
+        [((UILabel *)self.navigationItem.titleView) sizeToFit];
         return;
     }
     
@@ -287,11 +289,27 @@ static NSString *const kImagePickerCellReuseIdentifier = @"co.oceanlabs.ps.kImag
     [self updateTitleWithSelectedIndexPaths:collectionView.indexPathsForSelectedItems];
 }
 
+// ISAAC: Did some merging here. May have caused problems.
 -(void) collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     if (self.allowMultiSelect) {
         [self updateTitleWithSelectedIndexPaths:collectionView.indexPathsForSelectedItems];
     } else {
         [self onButtonDoneClicked];
+    }    
+    OLInstagramImagePickerController *picker = (OLInstagramImagePickerController *) self.navigationController;
+    if ([picker.delegate respondsToSelector:@selector(instagramImagePicker:didSelectImage:)]){
+        [picker.delegate instagramImagePicker:picker didSelectImage:[self.media objectAtIndex:indexPath.item]];
+    }
+}
+
+- (BOOL)collectionView:(UICollectionView *)collectionView shouldSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    [self updateTitleWithSelectedIndexPaths:collectionView.indexPathsForSelectedItems];
+    OLInstagramImagePickerController *picker = (OLInstagramImagePickerController *) self.navigationController;
+    if ([picker.delegate respondsToSelector:@selector(instagramImagePicker:shouldSelectImage:)]){
+         return [picker.delegate instagramImagePicker:picker shouldSelectImage:[self.media objectAtIndex:indexPath.item]];
+    }
+    else{
+        return YES;
     }
 }
 
@@ -346,9 +364,13 @@ static NSString *const kImagePickerCellReuseIdentifier = @"co.oceanlabs.ps.kImag
         instagramAccounts = @[];
     }
     
-    OLInstagramLoginWebViewController *loginVC = [[OLInstagramLoginWebViewController alloc] init];
+    NSBundle *currentBundle = [NSBundle bundleForClass:[OLInstagramLoginWebViewController class]];
+    
+    OLInstagramLoginWebViewController *loginVC = [[OLInstagramLoginWebViewController alloc] initWithNibName:NSStringFromClass([OLInstagramLoginWebViewController class])
+                                                                                                     bundle:currentBundle];
     loginVC.redirectURI = redirectURI;
-    OLInstagramImagePickerViewController *imagePickerVC = [[OLInstagramImagePickerViewController alloc] init];
+    OLInstagramImagePickerViewController *imagePickerVC = [[OLInstagramImagePickerViewController alloc] initWithNibName:NSStringFromClass([OLInstagramImagePickerViewController class])
+                                                                                                                 bundle:currentBundle];
     
     UIViewController *openingController = nil;
     if (instagramAccounts.count == 0) {
